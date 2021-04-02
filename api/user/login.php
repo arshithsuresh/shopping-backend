@@ -33,10 +33,15 @@
             "lastname" => $user->lName,
             "email" => $user->email,
             "location" => $user->location
-        );    
+        );   
+        
+        $refreshTokenData = array(
+            "id"=> $user->id,
+            "email"=> $user->email
+        );
 
         $AccessToken = AccessToken::withBody($tokenData);
-        $RefreshToken = RefreshToken::createNew();
+        $RefreshToken = RefreshToken::createNew($refreshTokenData);
                 
         http_response_code(200);
 

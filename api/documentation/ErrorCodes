@@ -1,0 +1,7 @@
+## User Authentication Codes 40 TO 50
+
+ERR41 - Refresh Token Expired
+ERR42 - Refersh Token Invalid
+ERR45 - Access Token Expired
+ERR46 - Access Token Invalid
+ERR49 - No Token Found

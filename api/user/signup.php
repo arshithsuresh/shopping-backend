@@ -21,12 +21,11 @@
     $user->setUserDetails($data->username,$data->email,$data->password,$data->fName,$data->lName,$data->location);
     
     $errorCode=200;
-
+    
     if($user->checkAllFields() && ($errorCode=$user->createUser())=='')
-    {
+    {        
         http_response_code(200);        
-        sentMessage("User Created Succesfully!");        
-        
+        sentMessage("User Created Succesfully!");
     }
     else
     {

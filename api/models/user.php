@@ -37,20 +37,41 @@
             $this->location = $loc;
         }
 
+        public function getRefreshTokenPassword($username){
+            $query = "SELECT id,email,location,fName,lName,password,refreshToken from ".$this->tableName." where username= ?";
+            $stmt = $this->conn->prepare($query);
+
+            $username=htmlspecialchars(strip_tags($username));
+
+            $stmt->bindParam(1,$username);
+            $stmt->execute();
+
+            $rowCount=$stmt->rowCount();
+            $row=null;
+            if($rowCount>0)
+            {
+                $row = $stmt->fetch(PDO::FETCH_ASSOC);
+               
+            }
+            if($stmt->closeCursor())
+            {
+            }     
+            return $row;         
+        }
         //Check if user exits and return the details
         public function checkUserExits()
         {
             $query = "SELECT id,email,location,fName,lName,password FROM ". $this->tableName . " WHERE username = ? LIMIT 0,1";
-
+            
             $stmt = $this->conn->prepare($query);
 
             $this->email=htmlspecialchars(strip_tags($this->username));
-
+            
             $stmt->bindParam(1,$this->username);
             $stmt->execute();
 
             $rowCount=$stmt->rowCount();
-
+            
             if($rowCount>0)
             {
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -78,7 +99,10 @@
             $stmt->bindParam(':username', $this->username);
             $stmt->bindParam(':tokenVal', $tokenValue);  
 
-            $stmt->execute();
+            if($stmt->execute())
+            {
+                //print("Updated Refresh Token : ".$this->username);
+            }
             return $stmt->errorInfo()[1];
 
         }
@@ -89,6 +113,7 @@
                             !empty($this->password)&&!empty($this->fName)&&
                             !empty($this->lName)&&!empty($this->location);
 
+            
             return $requiredField;
         }
 
@@ -99,6 +124,7 @@
 
         public function createUser()
         {
+            
 
             $query = "INSERT INTO ".$this->tableName." 
                     SET 
@@ -109,9 +135,9 @@
                          lName = :lName,
                          location = :location;
                     ";
-
+            
             $stmt = $this->conn->prepare($query);
-
+            
             $this->username=htmlspecialchars(strip_tags($this->username));
             $this->email=htmlspecialchars(strip_tags($this->email));
             $this->password=htmlspecialchars(strip_tags($this->password));
@@ -129,8 +155,12 @@
             $stmt->bindParam(':fName',$this->fName);
             $stmt->bindParam(':lName',$this->lName);
             $stmt->bindParam(':location',$this->location);
-
-            $stmt->execute();
+            
+            if($stmt->execute())
+            {
+               //User Created Succesfully
+            }
+            $stmt->closeCursor(); //Close Cursor
             return $stmt->errorInfo()[1];
         }
     }

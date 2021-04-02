@@ -3,7 +3,7 @@
 class database
 {
     private $host ="localhost";
-    private $dbName = "bike_rental";
+    private $dbName = "topzone";
     private $username ="root";
     private $password ="";
 

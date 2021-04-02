@@ -55,7 +55,7 @@ class AccessToken extends Token
 {    
     public $exp;    
     public $data;
-    public $expireTime = 25;
+    public $expireTime = 60;
 
     public function __construct()
     {
@@ -69,7 +69,7 @@ class AccessToken extends Token
 
         $instance->data = $dataBody;       
         $instance->exp = $instance->iat + $instance->expireTime;             
-        
+
         return $instance;
     }    
 
@@ -115,11 +115,11 @@ Class RefreshToken extends Token
         parent::__construct();
     }
 
-    public static function createNew ()
+    public static function createNew ($data)
     {   
         $instance = new self();           
-        $instance->exp = $instance->iat + $instance->expireTime; 
-        
+        $instance->exp = $instance->iat + $instance->expireTime;  
+        $instance->data = $data;       
         return $instance;
     }      
 
