@@ -13,7 +13,7 @@
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 
-    $UUID = guidv4("123abcde45678900");
-    echo $UUID;
+    // $UUID = guidv4("123abcde45678900");
+    // echo $UUID;   
     
 ?>

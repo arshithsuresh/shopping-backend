@@ -1,9 +1,16 @@
 <?php
 include_once './functions.php';
 
-$data = json_decode(file_get_contents("php://input"));
-$accessToken = isset($data->accessToken)?$data->accessToken : "";
-
+$accessToken = isset($_SERVER['HTTP_ACCESSTOKEN'])?$_SERVER['HTTP_ACCESSTOKEN']:die("{'error':'No Access Token'}");
 ValidateUser($accessToken);
+
+http_response_code(200);
+        
+echo json_encode(array(
+    "message" => "Access Granted",
+    "data" => $decodedJWT->data
+));
+
+
 
 ?>

@@ -1,6 +1,6 @@
 <?php
 
-header("Access-Control-Allow-Origin: http://localhost/rest-api-authentication-example/");
+header("Access-Control-Allow-Origin: http://localhost/topzoneapi/");
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Max-Age: 3600");
@@ -32,12 +32,13 @@ function ValidateUser($accessToken){
 
             $AccessToken = new AccessToken();  
 
-            http_response_code(200);
+            return true;
+            // http_response_code(200);
             
-            echo json_encode(array(
-                "message" => "Access Granted",
-                "data" => $decodedJWT->data
-            ));
+            // echo json_encode(array(
+            //     "message" => "Access Granted",
+            //     "data" => $decodedJWT->data
+            // ));
         }
         catch(ExpiredException $expired)
         {
@@ -59,12 +60,12 @@ function ValidateUser($accessToken){
     }
     else
     {
-        http_response_code(401);
-
+        http_response_code(401);        
         echo json_encode(array(
                 "message" => "No Access Token",
                 "error" => "Access Denied"));
     }
+   die();
 
 }
 

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div >
+        <form action="products/createProduct.php" method="post" enctype="multipart/form-data" style="display:flex; flex-direction: column; width: 450px;">
+            <input name="productname" type="text" placeholder="product name" >
+            <input name="stock" type="text" placeholder="stock" >
+            <input name="shortdecs" type="text" placeholder="shortdecs" >
+            <input name="description" type="text" placeholder="description" >
+            <input name="neck" type="text" placeholder="neck" >
+            <input name="length" type="text" placeholder="length" >
+            <input name="occasion" type="text" placeholder="occasion" >
+            <input name="images[]" type="file" placeholder="images" multiple>
+            <input name="thumbnail" type="file" placeholder="thumbnail" >
+
+            <button type="submit">Create Prodcut</button>
+        </form>
+    </div>
+    
+</body>
+</html>

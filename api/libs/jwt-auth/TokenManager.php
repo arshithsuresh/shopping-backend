@@ -107,7 +107,7 @@ Class RefreshToken extends Token
 {
     public $exp;    
     public $data;
-    public $expireTime = 60*60;
+    public $expireTime = 60*60*48;
 
     public function __construct()
     {
