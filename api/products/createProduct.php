@@ -18,12 +18,32 @@
 
     $productHandle = new ProductController($db);
 
-    $imageCount = count($file['images']['name']);
+    $imageCount = count($files['images']['name']);
 
     $productHandle->setFormData($formData,$imageCount); 
-    $productHandle->uploadThumbnail($files['thumbnail'],125);
-    $productHandle->uploadImagesFiles($files['images'],125);
+    $lastID=$productHandle->createProduct($formData);
+
+    if($lastID!=false){ 
+
+        $thumb=$productHandle->uploadThumbnail($files['thumbnail'],$lastID);
+        $imgs=$productHandle->uploadImagesFiles($files['images'],$lastID);
+
+        if( $thumb != false && $imgs!=false &&
+            $productHandle->UpdateImages($thumb,$imgs,$lastID)){
+
+                http_response_code(200);
+                echo "{\"message\":\"Product created successfully!\"}";
+
+        }
+    }
+    else
+    {
+        echo "{\"message\":\"Product creation failed. Try Again!\"}";
+        http_response_code(400);
+    }
+
     
-    print_r($formData);
+    
+    //print_r($formData);
 
 ?>

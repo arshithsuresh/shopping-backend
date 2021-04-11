@@ -7,6 +7,7 @@
 
         //Fields
         public $productid;
+        public $productcode;
         public $productname;
         public $stock=1;
         public $addedDate;
@@ -25,6 +26,7 @@
 
             $product->productid = $dbRow['productid'];
             $product->productname = $dbRow['productname'];
+            $product->productcode = $dbRow['productcode'];
             $product->upvotes = isset($dbRow['upvotes'])?$dbRow['upvotes']:null;
             $product->stock = isset($dbRow['stock'])?$dbRow['stock']:null;
             $product->addedDate = isset($dbRow['addedDate'])?$dbRow['addedDate']:null;
@@ -45,6 +47,7 @@
 
             $this->productname = $formData['productname'];
             $this->stock = $formData['stock'];
+            $this->productcode = $formData['productcode'];
             $this->shortdecs = $formData['shortdecs'];
             $this->description = $formData['description'];
             $this->spec_neck = $formData['neck'];
@@ -68,7 +71,7 @@
         } 
 
         public function getByOccasion($occassion){
-            $query = "select productid,productname,stock,shortdecs,thumbnailImg from ".$this->tableName." where spec_occasion=? order by addedDate desc limit 0,2";
+            $query = "select productid,productcode,productname,stock,shortdecs,thumbnailImg from ".$this->tableName." where spec_occasion=? order by addedDate desc limit 0,2";
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(1,$occassion);
 
@@ -89,7 +92,7 @@
         }
 
         public function getNewArrivals(){
-            $query = "select productid,productname,stock,shortdecs,thumbnailImg from ".$this->tableName." order by addedDate desc limit 0,2";
+            $query = "select productid,productcode,productname,stock,shortdecs,thumbnailImg from ".$this->tableName." order by addedDate desc limit 0,2";
             $stmt = $this->conn->prepare($query);
 
             $productsData = array();
@@ -112,12 +115,14 @@
             $targetDir = $this->fileStorageRoot . $productid.'/';            
             $uploadOk = 1; 
 
-            $currentFile=0;            
+            $currentFile=0;  
+            $imagesArray =array();          
             foreach($images['name'] as $image){     
                 $imageFileType = strtolower(pathinfo($image,PATHINFO_EXTENSION));
                 $targetFile =  $targetDir."img_".$currentFile.".".$imageFileType;
                 
                 $check = getimagesize($images['tmp_name'][$currentFile]);
+                array_push($imagesArray,$targetFile);
 
                 if($check ==false){
                     $uploadOk = 0;
@@ -140,7 +145,38 @@
                 $currentFile++;
                 
             }
+
+            if($uploadOk == 1)
+            {
+                return json_encode($imagesArray);
+            }
+
+            return false;
                                     
+        }
+
+
+        public function UpdateImages($thumbnail,$images,$lastId)
+        {
+            $query = "update ".$this->tableName." SET 
+                      thumbnailImg= :thumbnail,
+                      images= :images
+                      where productid=:id";
+            
+            $stmt = $this->conn->prepare($query);
+
+            $stmt->bindParam(":thumbnail", $thumbnail);
+            $stmt->bindParam(":images", $images);
+            $stmt->bindParam(":id", $lastId);
+
+
+            if($stmt->execute())
+            {
+                $stmt->closeCursor();
+                return true;
+            }
+            return false;
+
         }
 
         public function uploadThumbnail($thumbnail,$productid){
@@ -167,7 +203,7 @@
             if( move_uploaded_file($thumbnail['tmp_name'],$targetFile))
             {
                 $uploadOk=1;
-                return true;
+                return $targetFile;
             }
 
             return false;
@@ -198,31 +234,30 @@
             $query = "insert into ".$this->tableName." 
                             SET
                                productname = :pname,
+                               productCode = :pcode,
                                stock = :stock,
                                shortdecs = :shortdesc,
                                description = :desc,
                                spec_neck = :neck,
                                spec_length = :length,
-                               spec_occasion = :occasion,
-                               images = :images,
-                               thumbnailImg = :thumbnail;
+                               spec_occasion = :occasion;                               
                      ";
             $stmt = $this->conn->prepare($query);
 
             $stmt->bindParam(':pname',$this->productname);
+            $stmt->bindParam(':pcode',$this->productcode);
             $stmt->bindParam(':stock',$this->stock);
             $stmt->bindParam(':shortdesc',$this->shortdecs);
             $stmt->bindParam(':desc',$this->description);
             $stmt->bindParam(':neck',$this->spec_neck);
             $stmt->bindParam(':length',$this->spec_length);
-            $stmt->bindParam(':occasion',$this->spec_occasion);
-            $stmt->bindParam(':images',$this->images);
-            $stmt->bindParam(':thumbnail',$this->thumbnail);
+            $stmt->bindParam(':occasion',$this->spec_occasion);            
 
             if($stmt->execute())
             {
+                $last_id = $this->conn->lastInsertId();
                 $stmt->closeCursor();
-                return true;
+                return $last_id;
             }
             $stmt->closeCursor(); //Close Cursor
             return false;
