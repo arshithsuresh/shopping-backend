@@ -23,6 +23,11 @@ class database
 
         return $this->conn;
     }
+
+    public function __destruct()
+    {        
+        $this->Conn = null;        
+    }
 }
 
 ?>

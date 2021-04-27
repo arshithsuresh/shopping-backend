@@ -12,7 +12,7 @@
 
     //Middlewares
     //Checking for authorization
-    include_once '../user/requireAuth.php';
+    //include_once '../user/requireAuth.php';
 
     //End Middlewares
 
@@ -20,19 +20,27 @@
     $db = $database->getConnection();
 
     $productHandle = new ProductController($db);
-    $data = json_decode(file_get_contents("php://input"));
+    
+    if(!isset($_GET['productId']))
+    {
+        echo "{\"error\":\"No product ID requested\"}";
+        die();
+    }
 
-    $productId = isset($data->id)?$data->id:null;
+    $productId = $_GET['productId'];
 
     $productData = $productHandle->getProductById($productId);
     
 
-    if($productData !=null)
+    if($productData !=null) 
+    {
+        http_response_code(200);
         echo json_encode($productData);
+    }
     else
     {
         http_response_code(404);
-        echo "{'error':'No product found with ID'}";
+        echo "{\"error\":\"No product found with ID\"}";
     }
 
 ?>

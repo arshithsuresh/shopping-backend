@@ -7,13 +7,18 @@
     date_default_timezone_set('Asia/Kolkata');
     
 
+    function sentResponseMessage($message)
+    {
+        echo "{\"message\": \"".$message."\"}";
+    }
+
     function sentMessage($message=NULL,$error=NULL)
     {
         if($error == NULL && $message == NULL)
             echo json_encode(array("error"=>'0',"message"=>"Unidentified Error Occured!"));
-        else if(!empty($message))
+        if(!empty($message) && empty($error))
             echo json_encode(array("error"=>'0',"message"=>$message));
-        else if(!empty($error))
+        if(!empty($error))
         {
             switch($error)
             {
@@ -26,5 +31,7 @@
             }
         }
     }
+
+    
 
 ?>

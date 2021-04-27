@@ -19,6 +19,7 @@
         public $spec_occasion;
         public $images;
         public $thumbnailImg;
+        public $newArrival;
 
         public static function fromDatabase($dbRow){
 
@@ -37,7 +38,21 @@
             $product->spec_occasion = isset($dbRow['spec_occasion'])?$dbRow['spec_occasion']:null;
             $product->images = isset($dbRow['images'])?$dbRow['images']:null;
             $product->thumbnailImg = isset($dbRow['thumbnailImg'])?$dbRow['thumbnailImg']:null; 
+            
+            if(isset($dbRow['addedDate']))
+            {
+                
+                $newArrThreshold = new DateTime(date('Y-m-d', strtotime('-14 day', strtotime(date("Y-m-d")))));                
+                $productDate = new DateTime($product->addedDate);
 
+                $product->newArrival = $productDate > $newArrThreshold;
+
+            }
+            else
+            {
+                $product->newArrival=null;
+            }
+            
 
             return $product;
 
@@ -68,7 +83,7 @@
         public function __construct($db)
         {
             $this->conn = $db;
-        } 
+        }        
 
         public function getByOccasion($occassion){
             $query = "select productid,productcode,productname,stock,shortdecs,thumbnailImg from ".$this->tableName." where spec_occasion=? order by addedDate desc limit 0,2";
@@ -91,26 +106,28 @@
             return $productsData;
         }
 
-        public function getNewArrivals(){
-            $query = "select productid,productcode,productname,stock,shortdecs,thumbnailImg from ".$this->tableName." order by addedDate desc limit 0,2";
-            $stmt = $this->conn->prepare($query);
-
+        public function getNewArrivals($count = 3){
+            $query = "select productid,addedDate,productcode,productname,stock,shortdecs,thumbnailImg from ".$this->tableName." order by addedDate desc limit 0,".$count;
+            $stmt = $this->conn->prepare($query);            
             $productsData = array();
             if($stmt->execute())
             {
                 $rowCount = $stmt->rowCount();
                 if($rowCount>0)
                 {
+                    $newArrThreshold = new DateTime(date('Y-m-d', strtotime('-14 day', strtotime(date("Y-m-d")))));
                     while($productData = $stmt->fetch(PDO::FETCH_ASSOC))
                     {
                         $product = ProductModel::fromDatabase($productData);
-                        array_push($productsData, $product);
+                        $productDate = new DateTime($product->addedDate);
+                        if($productDate > $newArrThreshold)
+                            array_push($productsData, $product);
                     }
                 }
             }
             return $productsData;
         }
-
+        
         public function uploadImagesFiles($images,$productid){
             $targetDir = $this->fileStorageRoot . $productid.'/';            
             $uploadOk = 1; 
@@ -215,6 +232,7 @@
             $stmt = $this->conn->prepare($query);
 
             $stmt->bindParam(1,$id);
+            
             $productData = null;
             if($stmt->execute())
             {
@@ -222,6 +240,7 @@
                 if($rowCount>0)
                 {
                     $productData = $stmt->fetch(PDO::FETCH_ASSOC);
+                    $productData = ProductModel::fromDatabase($productData);
                 }
 
                 $stmt->closeCursor();                
@@ -230,6 +249,67 @@
             return $productData;
         }
         
+        public function deleteProduct($productId)
+        {
+            $query = "delete from ".$this->tableName." where productid=?";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(1, $productId);
+
+            if($stmt->execute())
+            {
+                $stmt->closeCursor();
+                return $stmt->rowCount();             
+            }
+
+            return false;
+        }
+
+        public function updateProductStock($productId,$stock)
+        {
+            
+            $query = "update ".$this->tableName." set stock=? where productid=?";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(1, $stock);
+            $stmt->bindParam(2, $productId);
+
+            if($stmt->execute())
+            {
+                $stmt->closeCursor();
+                return $stmt->rowCount();              
+            }
+
+            return false;
+
+        }
+
+        public function getAllProducts($fromId = 0)
+        {
+            $query = "select productid,addedDate,productcode,productname,stock,shortdecs,thumbnailImg from ".$this->tableName." where productid > ?";
+            $stmt = $this->conn->prepare($query);
+
+            $stmt->bindParam(1,$fromId);
+            
+            if($stmt->execute())
+            {
+                $rowCount = $stmt->rowCount();
+                if($rowCount>0)
+                {
+                    $productList = [];
+                    while($product = $stmt->fetch(PDO::FETCH_ASSOC))
+                    {
+                        $productObj = ProductModel::fromDatabase($product);
+                        array_push($productList,$productObj);
+                    }
+
+                    return $productList;
+                }
+            }
+
+            return null;
+        }
+
         public function createProduct($productData){
             $query = "insert into ".$this->tableName." 
                             SET
