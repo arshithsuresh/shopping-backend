@@ -38,7 +38,7 @@
         }
 
         public function getRefreshTokenPassword($username){
-            $query = "SELECT id,email,location,fName,lName,password,refreshToken from ".$this->tableName." where username= ?";
+            $query = "SELECT username,email,location,fName,lName,password,refreshToken from ".$this->tableName." where username= ?";
             $stmt = $this->conn->prepare($query);
 
             $username=htmlspecialchars(strip_tags($username));
@@ -53,9 +53,8 @@
                 $row = $stmt->fetch(PDO::FETCH_ASSOC);
                
             }
-            if($stmt->closeCursor())
-            {
-            }     
+            $stmt->closeCursor();
+                
             return $row;         
         }
         //Check if user exits and return the details

@@ -55,7 +55,7 @@ class AccessToken extends Token
 {    
     public $exp;    
     public $data;
-    public $expireTime = 60;
+    public $expireTime = 20;
 
     public function __construct()
     {

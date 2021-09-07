@@ -20,15 +20,14 @@
     $data = json_decode(file_get_contents("php://input"));
 
     $user->setUsername($data->username);
-    $user->setEmail($data->email);
-
+        
     $emailExits = $user->checkUserExits();
    
     
     if($emailExits && password_verify($data->password, $user->password))
     {
         $tokenData = array(
-            "id"=> $user->id,
+            "username"=> $data->username,
             "firstname" => $user->fName,
             "lastname" => $user->lName,
             "email" => $user->email,
@@ -53,7 +52,12 @@
         echo json_encode(array(
             "message" => "Successfull Login!",
             "accessToken" => $AccessTokenString,
-            "refeshToken" => $RefeshTokenString
+            "refeshToken" => $RefeshTokenString,
+            "username"=> $data->username,
+            "firstname" => $user->fName,
+            "lastname" => $user->lName,
+            "email" => $user->email,
+            "location" => $user->location
             
         ));
     }

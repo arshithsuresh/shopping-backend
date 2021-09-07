@@ -12,7 +12,7 @@
 
     //Middlewares
     //Checking for authorization
-    //include_once '../user/requireAuth.php';
+    include_once '../user/requireAuth.php';
 
     //End Middlewares
 

@@ -10,7 +10,7 @@
     include_once '../config/core.php';
     include_once '../user/functions.php';
 
-    //include_once '../user/requireAuth.php';
+    include_once '../user/requireAuth.php';
 
     $database = new Database();
     $db = $database->getConnection();

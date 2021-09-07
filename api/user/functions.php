@@ -20,6 +20,16 @@ use Firebase\JWT\ExpiredException;
 use \Firebase\JWT\JWT;
 use Firebase\JWT\SignatureInvalidException;
 
+
+function DecodeToken($accessToken)
+{
+    global $ACCESS_TOKEN_KEY;
+
+    $decodedJWT = JWT::decode($accessToken,$ACCESS_TOKEN_KEY,array('HS256'));
+
+    return $decodedJWT;
+}
+
 function ValidateUser($accessToken){
 
     global $ACCESS_TOKEN_KEY;
@@ -30,7 +40,7 @@ function ValidateUser($accessToken){
 
             $decodedJWT = JWT::decode($accessToken,$ACCESS_TOKEN_KEY,array('HS256'));
 
-            $AccessToken = new AccessToken();  
+            //$AccessToken = new AccessToken();  
 
             return true;
             // http_response_code(200);

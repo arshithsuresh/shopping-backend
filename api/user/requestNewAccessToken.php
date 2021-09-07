@@ -21,8 +21,9 @@
 
     $data = json_decode(file_get_contents("php://input"));
     
-    $refreshToken = isset($data->refreshToken)?$data->refreshToken : "";
-    $UUID = isset($data->UUID)?$data->UUID : "";
+    $refreshToken = isset($_SERVER['HTTP_REFRESHTOKEN'])?$_SERVER['HTTP_REFRESHTOKEN']:die("{'error':'No Access Token'}");
+    
+    $UUID = isset($data->username)?$data->username : "";
 
     if($refreshToken && $UUID)    {
         
@@ -45,7 +46,7 @@
                 $decodedRefreshToken = JWT::decode($refreshToken,$REFRESH_TOKEN_KEY.$userPassword,array('HS256'));
 
                 $tokenData = array(
-                    "id"=> $userDetails['id'],
+                    "username"=> $userDetails['username'],
                     "firstname" => $userDetails['fName'],
                     "lastname" => $userDetails['lName'],
                     "email" => $userDetails['email'],
@@ -53,10 +54,10 @@
                 );   
                 
                 $refreshTokenData = array(
-                    "id"=> $userDetails['id'],
+                    "id"=> $userDetails['username'],
                     "email"=> $userDetails['email']
                 );
-        
+                
                 $AccessToken = AccessToken::withBody($tokenData);
                 $RefreshToken = RefreshToken::createNew($refreshTokenData);
 
